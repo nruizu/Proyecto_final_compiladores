@@ -80,7 +80,10 @@ def compute_follow(N, G, First, Follow):
                                     Follow[N].append(k)
                             #If epsilon is in First of the next character, then we add the follow set of the non-terminal symbol we are using
                             if "e" in First[G[key][i][j+1]]:
-                                compute_follow(key, G, First, Follow)
+                                compute_follow(G[key][i][j+1], G, First, Follow)
+                                for k in Follow[G[key][i][j+1]]:
+                                    if k not in Follow[N]:
+                                        Follow[N].append(k)
     return Follow
 
 
