@@ -16,12 +16,12 @@ def compute_first(N, index, G, First):
         elif G[N][i][index].islower():
             if G[N][i][index] not in First[N]:
                 First[N].append(G[N][i][index])
-        #If the character is an upper case letter, then First is computed
-        elif G[N][i][index].isupper():
+        #If the character is an upper case letter and is different from the non-terminal symbol we are using, then First is computed
+        elif G[N][i][index].isupper() and (G[N][i][index] != N):
             compute_first(G[N][i][index], index, G, First)
             for j in First[G[N][i][index]]:
                 #If the character is not epsilon, then the character is added to First if it is not already there
-                if j != "e" & j not in First[N]:
+                if (j != "e") and (j not in First[N]):
                     First[N].append(j)
             #If epsilon is in First, then the next character is read
             if "e" in First[G[N][i][index]]:
@@ -37,7 +37,31 @@ def compute_first(N, index, G, First):
                 else:
                     compute_first(G[N][i][index+1], index + 1, G, First)
     return First
-            
+
+def compute_follow(N, G, First, Follow, flag):
+    if N == "S":
+        if "$" not in Follow[N]:
+            Follow[N].append("$")
+    for key in G:
+        for i in range(len(G[key])):
+            for j in range(len(G[key][i])):
+                if (G[key][i][j] == N and key != N) or (G[key][i][j] == N and j != len(G[key][i]) - 1):
+                    if j == len(G[key][i]) - 1:
+                        compute_follow(key, G, First, Follow, flag)
+                        for k in Follow[key]:
+                            if k not in Follow[N]:
+                                Follow[N].append(k)
+                    else:
+                        if G[key][i][j+1].islower():
+                            if G[key][i][j+1] not in Follow[N]:
+                                Follow[N].append(G[key][i][j+1])
+                        else:
+                            for k in First[G[key][i][j+1]]:
+                                if k != "e" and k not in Follow[N]:
+                                    Follow[N].append(k)
+                            if "e" in First[G[key][i][j+1]]:
+                                compute_follow(key, G, First, Follow, flag)
+    return Follow
 
 
 
@@ -62,5 +86,21 @@ for _ in range(cases):
     for key in G:
         #The function that computes the first set of the non-terminal
         First = compute_first(key, 0, G, First)
-    print(First)
+        print(f"First({key}) = " + "{", end="")
+        for i in range(len(First[key])):
+            if i < len(First[key]) - 1:
+                print(First[key][i], end=", ")
+            else:
+                print(First[key][i], end="")
+        print("}")
 
+    Follow = defaultdict(list)
+    for key in G:
+        Follow = compute_follow(key, G, First, Follow, False)
+        print(f"Follow({key}) = " + "{", end="")
+        for i in range(len(Follow[key])):
+            if i < len(Follow[key]) - 1:
+                print(Follow[key][i], end=", ")
+            else:
+                print(Follow[key][i], end="")
+        print("}")
