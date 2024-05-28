@@ -9,7 +9,7 @@ def compute_first(N, index, G, First):
         #because there is no other character to be read
         if index == len(G[N][i]):
             #If epsilon is not in First, then it is added to the set
-            if G[N][i][index] not in First[N]:
+            if "e" not in First[N]:
                 First[N].append("e")
         #If the character is epsilon, then epsilon is added to First if it is not already there
         elif "e" == G[N][i][index]:
@@ -21,24 +21,29 @@ def compute_first(N, index, G, First):
                 First[N].append(G[N][i][index])
         #If the character is an upper case letter and is different from the non-terminal symbol we are using, then First is computed
         elif G[N][i][index].isupper() and (G[N][i][index] != N):
-            compute_first(G[N][i][index], index, G, First)
-            for j in First[G[N][i][index]]:
-                #If the character is not epsilon, then the character is added to First if it is not already there
-                if (j != "e") and (j not in First[N]):
-                    First[N].append(j)
-            #If epsilon is in First, then the next character is read
-            if "e" in First[G[N][i][index]]:
-                #If the next character is the length of the production, then epsilon is added to First
-                if index + 1 == len(G[N][i]):
-                    if G[N][i][index] not in First[N]:
-                        First[N].append("e")
-                #If the next character is a terminal, then the terminal is added to First
-                elif G[N][i][index+1].islower():
-                    if G[N][i][index+1] not in First[N]:
-                        First[N].append(G[N][i][index+1])
-                #If the next character is an upper case letter, then First is computed with the next character
+            for k in range(len(G[N][i])):
+                if G[N][i][k].islower():
+                    if G[N][i][k] not in First[N]:
+                        First[N].append(G[N][i][k])
+                    break
                 else:
-                    compute_first(G[N][i][index+1], index + 1, G, First)
+                    compute_first(G[N][i][k], index, G, First)
+                    for j in First[G[N][i][k]]:
+                        #If the character is not epsilon, then the character is added to First if it is not already there
+                        if (j != "e") and (j not in First[N]):
+                            First[N].append(j)
+                    #If epsilon is in First, then the next character is read
+                    if "e" in First[G[N][i][k]]:
+                        #If the next character is the length of the production, then epsilon is added to First
+                        if k+1 == len(G[N][i]):
+                            if "e" not in First[N]:
+                                First[N].append("e")
+                            break
+                        #If the next character is an upper case letter, then First is computed with the next character
+                        else:
+                            continue
+                    else:
+                        break
     return First
 
 
